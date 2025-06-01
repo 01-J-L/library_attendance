@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Library System{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0D9488; /* Teal 600 */
+            --primary-hover-color: #0F766E; /* Teal 700 */
+            --secondary-color: #6B7280; /* Gray 500 */
+            --secondary-hover-color: #4B5563; /* Gray 600 */
+            --danger-color: #EF4444; /* Red 500 */
+            --danger-hover-color: #DC2626; /* Red 600 */
+            
+            --background-color: #F3F4F6; /* Gray 100 */
+            --card-background-color: #FFFFFF;
+            --text-color: #1F2937; /* Gray 800 */
+            --text-muted-color: #6B7280; /* Gray 500 */
+            --border-color: #E5E7EB; /* Gray 200 */
+            --input-border-color: #D1D5DB; /* Gray 300 */
+            --input-focus-ring-color: rgba(20, 184, 166, 0.3); /* Teal 500 with alpha */
+
+            --font-family: 'Inter', sans-serif;
+            --border-radius-sm: 0.25rem; /* 4px */
+            --border-radius-md: 0.375rem; /* 6px */
+            --border-radius-lg: 0.5rem;  /* 8px */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .app-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center if no nav items */
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+        .app-header .brand {
+            font-size: 1.5em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: white;
+        }
+        .app-header .brand svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .container {
+            background-color: var(--card-background-color);
+            padding: 2rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            width: 100%;
+            max-width: 900px; /* Max width for content */
+            margin: 0 auto 2rem auto; /* Centered */
+        }
+
+        h1, h2, h3 {
+            color: var(--text-color);
+            margin-top: 0;
+            font-weight: 600;
+        }
+        h1 { font-size: 1.875em; margin-bottom: 1.5rem; text-align: center; }
+        h2 { font-size: 1.5em; margin-bottom: 1rem; }
+
+        nav { /* General nav container, e.g., for dashboard header */
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .button, .button-link {
+            display: inline-flex; /* For icon alignment */
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem; /* Space between icon and text */
+            padding: 0.625rem 1rem; /* 10px 16px */
+            border-radius: var(--border-radius-md);
+            font-weight: 500;
+            font-size: 0.925em;
+            text-decoration: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            white-space: nowrap;
+        }
+        .button svg, .button-link svg {
+            width: 1em; /* Relative to font size */
+            height: 1em;
+        }
+
+        .button-primary, button[type="submit"] { /* Default button, main form submit */
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .button-primary:hover, button[type="submit"]:hover {
+            background-color: var(--primary-hover-color);
+            border-color: var(--primary-hover-color);
+        }
+        button[type="submit"] { /* Main submit buttons on forms */
+            width: 100%;
+            margin-top: 0.5rem;
+            font-size: 1em;
+            padding: 0.75rem 1rem;
+        }
+
+        .button-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+        .button-secondary:hover {
+            background-color: var(--secondary-hover-color);
+            border-color: var(--secondary-hover-color);
+        }
+
+        .button-danger {
+            background-color: var(--danger-color);
+            color: white;
+            border-color: var(--danger-color);
+        }
+        .button-danger:hover {
+            background-color: var(--danger-hover-color);
+            border-color: var(--danger-hover-color);
+        }
+
+        .button-link { /* For nav links styled as buttons */
+            background-color: transparent;
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .button-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .button-link.logout {
+            color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+        .button-link.logout:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .button-sm {
+            padding: 0.375rem 0.75rem; /* 6px 12px */
+            font-size: 0.8em;
+        }
+        .icon-button { /* For buttons that are just an icon */
+            padding: 0.5rem;
+        }
+        .icon-button svg {
+            width: 1.25em;
+            height: 1.25em;
+        }
+
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            overflow: hidden; /* For rounded corners on table */
+        }
+        th, td {
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1rem; /* 12px 16px */
+            text-align: left;
+            vertical-align: middle;
+            font-size: 0.9em;
+        }
+        th {
+            background-color: #F9FAFB; /* Gray 50 */
+            color: var(--text-muted-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        td:last-child, th:last-child { text-align: right; } /* Align actions to right */
+        tr:last-child td { border-bottom: none; }
+
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9em;
+            color: var(--text-color);
+        }
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%; /* Form controls take full width */
+            padding: 0.625rem 0.75rem; /* 10px 12px */
+            border: 1px solid var(--input-border-color);
+            border-radius: var(--border-radius-md);
+            font-size: 1em;
+            background-color: white;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--input-focus-ring-color);
+        }
+
+        .radio-group { display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem; }
+        .radio-group label {
+            display: inline-flex; /* Align radio and text */
+            align-items: center;
+            gap: 0.375rem;
+            margin-bottom: 0; /* Override default label margin */
+            font-weight: normal;
+            cursor: pointer;
+        }
+        input[type="radio"] {
+            accent-color: var(--primary-color); /* Modern way to style radio button */
+            width: 1em; height: 1em;
+        }
+
+        .message {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: var(--border-radius-md);
+            border: 1px solid transparent;
+            text-align: center;
+            font-size: 0.95em;
+        }
+        .message.success { background-color: #D1FAE5; color: #065F46; border-color: #A7F3D0; } /* Green 100, 800, 200 */
+        .message.error { background-color: #FEE2E2; color: #991B1B; border-color: #FECACA; } /* Red 100, 800, 200 */
+        .message.info { background-color: #DBEAFE; color: #1E40AF; border-color: #BFDBFE; } /* Blue 100, 800, 200 */
+        .message.warning { background-color: #FEF3C7; color: #92400E; border-color: #FDE68A; } /* Amber 100, 800, 200 */
+
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .dashboard-header h2 { margin-bottom: 0; }
+        .dashboard-header nav { margin-bottom: 0; }
+
+        .search-bar-container {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            position: relative; /* For positioning search icon */
+        }
+        .search-bar-container .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted-color);
+            pointer-events: none; /* So it doesn't interfere with input click */
+            width: 1.1rem; height: 1.1rem;
+        }
+        .search-bar-container input[type="text"] {
+            flex-grow: 1;
+            padding-left: 2.5rem; /* Space for the icon */
+            margin-right: 0.5rem;
+        }
+        .search-bar-container .button { /* For clear button */
+            flex-shrink: 0; /* Prevent clear button from shrinking */
+        }
+
+
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-muted-color);
+            font-size: 0.875em;
+            margin-top: auto; /* Pushes footer to bottom */
+        }
+        .footer a.admin-link { /* Style for the admin link */
+            color: var(--text-muted-color);
+            text-decoration: none; 
+        }
+        .footer a.admin-link:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        /* General variables (if not already in base.css) */
+:root {
+    --primary-color: #007bff; /* Example: Blue */
+    --secondary-color: #6c757d; /* Example: Gray */
+    --danger-color: #dc3545; /* Example: Red */
+    --success-color: #28a745; /* Example: Green */
+    --warning-color: #ffc107; /* Example: Yellow */
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --border-color: #dee2e6;
+    --text-color: #212529;
+    --background-color: #f4f7f9; /* Light grayish background */
+    --card-background: #ffffff;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --border-radius: 0.375rem; /* 6px */
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.075);
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px; /* Add some padding around the whole page */
+}
+
+.admin-container {
+    max-width: 1200px; /* Max width for the content */
+    margin: 0 auto; /* Center the content */
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Space between cards */
+}
+
+/* Card styling */
+.card {
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 1.5rem;
+}
+
+/* Header Card Specifics */
+.dashboard-header-card .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allow nav to wrap on smaller screens */
+    gap: 1rem; /* Space between title and nav */
+}
+
+.dashboard-header-card h2 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.75rem;
+}
+
+.dashboard-nav {
+    display: flex;
+    gap: 0.75rem; /* Space between nav buttons */
+}
+
+/* Buttons with Icons */
+.button-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em; /* Space between icon and text */
+}
+.button-with-icon svg {
+    flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+/* Search Card Specifics */
+.search-card .search-form {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* Allow input group to take available space */
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 0.5rem 0.75rem;
+    background-color: #fff; /* White background for input field */
+}
+
+.search-input-group:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.search-input-group .search-icon {
+    width: 1.25rem; /* 20px */
+    height: 1.25rem; /* 20px */
+    stroke: var(--secondary-color);
+    margin-right: 0.5rem;
+}
+
+.search-input-group .search-input {
+    border: none;
+    outline: none;
+    flex-grow: 1;
+    padding: 0.25rem 0; /* Minimal padding */
+    font-size: 1rem;
+}
+
+.clear-search-button {
+    /* Styles for clear button if any specific needed */
+}
+
+/* Logs Card Specifics */
+.logs-card {
+    /* No specific styles needed beyond .card unless for padding overrides */
+}
+
+/* Table styling */
+.table-responsive-wrapper {
+    overflow-x: auto; /* Allows table to scroll horizontally on small screens */
+}
+
+.logs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem; /* Space above table if there was content before */
+    font-size: 0.9rem;
+}
+
+.logs-table th,
+.logs-table td {
+    padding: 0.75rem 1rem; /* Increased padding */
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.logs-table th {
+    background-color: var(--light-color);
+    font-weight: 600; /* Bolder headers */
+    color: var(--dark-color);
+    white-space: nowrap; /* Prevent header text from wrapping */
+}
+
+.logs-table tbody tr:nth-of-type(even) {
+    background-color: rgba(0,0,0,0.03); /* Subtle zebra striping */
+}
+
+.logs-table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.075); /* Hover effect */
+}
+
+.logs-table .text-center {
+    text-align: center;
+}
+
+.logs-table .actions-cell {
+    white-space: nowrap; /* Prevent action buttons from wrapping */
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 0.25em 0.6em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    color: #fff;
+}
+
+.status-inside {
+    background-color: var(--success-color); /* Green */
+}
+
+.status-out {
+    background-color: var(--secondary-color); /* Gray */
+}
+
+.status-unknown {
+    background-color: var(--warning-color); /* Yellow */
+    color: var(--dark-color);
+}
+
+/* Message Containers (No records, Search results) */
+.message-container {
+    padding: 1.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--secondary-color);
+}
+
+.message-container svg {
+    margin-bottom: 0.5rem;
+    color: var(--secondary-color); /* Default icon color */
+}
+
+.info-message svg {
+    color: var(--primary-color);
+}
+.empty-message svg {
+    color: var(--secondary-color); /* A neutral icon color */
+}
+
+.message-container p {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.message-container strong {
+    color: var(--text-color);
+}
+
+.link-styled {
+    color: var(--primary-color);
+    text-decoration: underline;
+    font-weight: 500;
+}
+.link-styled:hover {
+    text-decoration: none;
+}
+
+/* General Button Styles (if not fully covered in base.css) */
+.button {
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    display: inline-flex; /* for alignment with icons */
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+}
+
+.button-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+.button-primary:hover {
+    background-color: darken(var(--primary-color), 10%);
+    border-color: darken(var(--primary-color), 12%);
+}
+
+.button-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+    border-color: var(--secondary-color);
+}
+.button-secondary:hover {
+    background-color: darken(var(--secondary-color), 10%);
+    border-color: darken(var(--secondary-color), 12%);
+}
+
+.button-danger {
+    background-color: var(--danger-color);
+    color: white;
+    border-color: var(--danger-color);
+}
+.button-danger:hover {
+    background-color: darken(var(--danger-color), 10%);
+    border-color: darken(var(--danger-color), 12%);
+}
+
+.button-link {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+.button-link:hover {
+    background-color: rgba(0, 123, 255, 0.1); /* Light primary background on hover */
+}
+.button-link.logout {
+    color: var(--danger-color);
+}
+.button-link.logout:hover {
+    background-color: rgba(220, 53, 69, 0.1); /* Light danger background on hover */
+}
+
+
+.button-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+.icon-button {
+    padding: 0.4rem; /* Adjust padding for icon-only buttons */
+    line-height: 1; /* Ensure icon is centered */
+}
+.icon-button svg {
+    /* No extra margin/gap if it's truly icon-only */
+}
+
+/* Responsive adjustments (example) */
+@media (max-width: 768px) {
+    .dashboard-header-card .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .search-card .search-form {
+        flex-direction: column;
+        align-items: stretch; /* Make buttons full width on small screens */
+    }
+    .search-card .search-form .button {
+        width: 100%;
+    }
+    .admin-container {
+        padding: 0.5rem;
+    }
+    .card {
+        padding: 1rem;
+    }
+    .logs-table th, .logs-table td {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Helper class from original (ensure it exists or add it) */
+.text-center {
+    text-align: center !important; /* Use important if necessary to override other styles */
+}
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <a href="{{ url_for('index') }}" class="brand">
+            <!-- Book Icon SVG -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+            Library System
+        </a>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>© {{ now.year if now else '2024' }} Library System. All rights reserved.
+            {# Add a link to the admin panel if the user is not on an admin page and not logged in as admin #}
+            {% if not request.path.startswith('/admin') and not session.get('admin_logged_in') %}
+             | <a href="{{ url_for('admin_login') }}" class="admin-link">Admin Access</a>
+            {% endif %}
+        </p>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

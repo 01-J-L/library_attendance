@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Library Entry/Exit{% endblock %}
+
+{% block content %}
+<h1>Library Record System</h1>
+
+<form method="POST" action="{{ url_for('process_action') }}">
+    <div class="form-group">
+        <label>Action:</label>
+        <div class="radio-group"> <!-- Added this div -->
+            <label for="action_enter">
+                <input type="radio" name="action_type" value="enter" id="action_enter" checked onchange="toggleFields()"> Enter
+            </label>
+            <label for="action_out">
+                <input type="radio" name="action_type" value="out" id="action_out" onchange="toggleFields()"> Out
+            </label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="user_id">Student/Staff ID:</label>
+        <input type="text" id="user_id" name="user_id" required placeholder="e.g., 2023-0001">
+    </div>
+
+    <div id="enter_fields">
+        <div class="form-group">
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" placeholder="e.g., Juan Dela Cruz">
+        </div>
+        <div class="form-group">
+            <label for="course">Course/Department:</label>
+            <input type="text" id="course" name="course" placeholder="e.g., BS Computer Science">
+        </div>
+        <div class="form-group">
+            <label for="section">Section/Year Level:</label>
+            <input type="text" id="section" name="section" placeholder="e.g., CS-3A or Faculty">
+        </div>
+    </div>
+
+    <button type="submit">Submit Record</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleFields() {
+        const enterFields = document.getElementById('enter_fields');
+        const nameInput = document.getElementById('name');
+        const courseInput = document.getElementById('course');
+        const sectionInput = document.getElementById('section');
+
+        if (document.getElementById('action_enter').checked) {
+            enterFields.style.display = 'block';
+            nameInput.required = true;
+            courseInput.required = true;
+            sectionInput.required = true;
+        } else {
+            enterFields.style.display = 'none';
+            nameInput.required = false;
+            courseInput.required = false;
+            sectionInput.required = false;
+            // Optionally clear fields when switching to "Out"
+            // nameInput.value = '';
+            // courseInput.value = '';
+            // sectionInput.value = '';
+        }
+    }
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleFields();
+    });
+</script>
+{% endblock %}

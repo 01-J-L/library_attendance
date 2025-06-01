@@ -1,0 +1,12 @@
+Flask
+python-dotenv
+mysql-connector-python
+Flask-Mail
+gunicorn
+flask
+Werkzeug
+Jinja2
+itsdangerous
+click
+blinker
+whitenoise

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+
+    <div class="card dashboard-header-card">
+        <div class="dashboard-header">
+            <h2>Library Logs</h2>
+            <nav class="dashboard-nav">
+                <a href="{{ url_for('index') }}" class="button button-link button-with-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="18" height="18">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" />
+                    </svg>
+                    <span>Home</span>
+                </a>
+                <a href="{{ url_for('admin_logout') }}" class="button button-link button-with-icon logout">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="18" height="18">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                    </svg>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="card search-card">
+        <form method="GET" action="{{ url_for('admin_dashboard') }}" class="search-form">
+            <div class="search-input-group">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                <input type="text" name="q" class="search-input" placeholder="Search by ID, Name, Course..." value="{{ search_query or '' }}">
+            </div>
+            {% if search_query %}
+                <a href="{{ url_for('admin_dashboard') }}" class="button button-secondary button-with-icon clear-search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>Clear</span>
+                </a>
+            {% else %}
+                <button type="submit" class="button button-primary">Search</button>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="card logs-card">
+        {% if records %}
+            <div class="table-responsive-wrapper">
+                <table class="logs-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Log ID</th>
+                            <th scope="col">User ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Course/Dept.</th>
+                            <th scope="col">Section/Year</th>
+                            <th scope="col">Date In</th>
+                            <th scope="col">Time In</th>
+                            <th scope="col">Time Out</th>
+                            <th scope="col" class="text-center">Status</th>
+                            <th scope="col" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in records %}
+                        <tr>
+                            <td>#{{ record.id }}</td>
+                            <td>{{ record.user_id }}</td>
+                            <td>{{ record.name if record.name else 'N/A' }}</td>
+                            <td>{{ record.course if record.course else 'N/A' }}</td>
+                            <td>{{ record.section if record.section else 'N/A' }}</td>
+                            <td>{{ record.date_in if record.date_in else 'N/A' }}</td>
+                            <td>{{ record.time_in if record.time_in else 'N/A' }}</td>
+                            <td>{{ record.time_out if record.time_out else 'N/A' }}</td>
+                            <td class="text-center">
+                                {% if record.time_in and not record.time_out %}
+                                    <span class="status-badge status-inside">INSIDE</span>
+                                {% elif record.time_in and record.time_out %}
+                                    <span class="status-badge status-out">OUT</span>
+                                {% else %}
+                                    <span class="status-badge status-unknown">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center actions-cell">
+                                <form method="POST" action="{{ url_for('delete_log', log_id=record.id, q=search_query or '') }}" style="display: inline;"
+                                      onsubmit="return confirm('Are you sure you want to delete log entry #{{ record.id }}? This action cannot be undone.');">
+                                    <button type="submit" class="button button-danger button-sm icon-button" title="Delete Log Entry">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="18" height="18">
+                                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12.56 0c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% elif search_query %}
+            <div class="message-container info-message">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="24" height="24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                </svg>
+                <p>No records found matching: "<strong>{{ search_query }}</strong>". <a href="{{ url_for('admin_dashboard') }}" class="link-styled">Clear search</a>.</p>
+            </div>
+        {% else %}
+            <div class="message-container empty-message">
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="32" height="32">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10.5 11.25h3M12 14.25v-3" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125s-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125s.504 1.125 1.125 1.125zM16.5 7.5v-.75a3.375 3.375 0 00-3.375-3.375h-1.5A3.375 3.375 0 008.25 6.75v.75" />
+                </svg>
+                <p>No records yet. Start by having users log their entry.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

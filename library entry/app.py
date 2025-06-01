@@ -42,7 +42,13 @@ def init_db():
             )
         ''')
         db.commit()
-        print("Database initialized and 'logs' table ensured.")
+        print("Database initialized and 'logs' table ensured (called from app.py module scope).")
+
+# --- IMPORTANT: Initialize DB when app module is loaded ---
+# This ensures that when 'app.py' is imported (e.g., by wsgi.py or Gunicorn),
+# the database initialization logic runs.
+init_db()
+# --- END OF IMPORTANT CHANGE ---
 
 # --- User Routes ---
 @app.route('/')
@@ -145,11 +151,9 @@ def admin_dashboard():
 
     if search_query:
         search_term_like = f"%{search_query}%"
-        # Search in multiple fields: user_id, name, course, section, date_in
-        # You can also search by id if the search_query is numeric
         fields_to_search = ["user_id", "name", "course", "section", "date_in"]
         
-        if search_query.isdigit(): # If search query is a number, also check ID
+        if search_query.isdigit():
             where_clauses.append("id = ?")
             query_params.append(int(search_query))
 
@@ -158,9 +162,9 @@ def admin_dashboard():
             query_params.append(search_term_like)
         
         if where_clauses:
-            base_sql += " WHERE (" + " OR ".join(where_clauses) + ")" # Group OR conditions
+            base_sql += " WHERE (" + " OR ".join(where_clauses) + ")"
             
-    base_sql += " ORDER BY id DESC" # Order by newest first primarily
+    base_sql += " ORDER BY id DESC"
     
     cursor.execute(base_sql, query_params)
     records = cursor.fetchall()
@@ -187,8 +191,7 @@ def delete_log(log_id):
             flash(f'Log entry #{log_id} not found or already deleted.', 'warning')
     except sqlite3.Error as e:
         flash(f'Database error: {e}', 'error')
-        # In a real app, log the error `e` for debugging
-    return redirect(url_for('admin_dashboard', q=request.args.get('q', ''))) # Preserve search query on redirect
+    return redirect(url_for('admin_dashboard', q=request.args.get('q', '')))
 
 
 @app.route('/admin/logout')
@@ -198,5 +201,8 @@ def admin_logout():
     return redirect(url_for('admin_login'))
 
 if __name__ == '__main__':
-    init_db() # Initialize the database when the app starts
-    app.run(debug=True)
+    # init_db() # This is now called at the module level above, so not strictly needed here.
+                # However, it doesn't hurt to leave it if you also run app.py directly for dev.
+    # For local development if you run "python app.py":
+    local_port = int(os.environ.get("APP_PY_PORT", 5001)) # Use a distinct port for clarity
+    app.run(debug=True, host="0.0.0.0", port=local_port)
